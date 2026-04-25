@@ -1,0 +1,42 @@
+name: Selenium Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ui-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Selenium tests
+        run: pytest --headless
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-html-report
+          path: artifacts/report.html
+          if-no-files-found: warn
+
+      - name: Upload failure artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-failure-artifacts
+          path: |
+            artifacts/screenshots
+            artifacts/page-sources
+          if-no-files-found: ignore
